@@ -1,27 +1,50 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <p>
+    Ask a yes/no question:
+    <input v-model="question" />
+  </p>
+  <p>{{ answer }}</p>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import { defineComponent } from "vue"
+import axios from "axios"
 
 export default defineComponent({
   name: "App",
-  components: {
-    HelloWorld
+  data() {
+    return {
+      dquestion: "",
+      answer: "Questions usually contain a question mark. ;-)"
+    }
+  },
+  computed: {
+    question: {
+      get(): string {
+        return this.dquestion
+      },
+      set(newQ) {
+        this.dquestion = newQ
+        if (newQ.indexOf("?") > -1) {
+          this.getAnswer()
+        }
+      }
+    }
+  },
+  methods: {
+    getAnswer() {
+      this.answer = "Thinking..."
+      axios
+        .get("https://yesno.wtf/api")
+        .then(response => {
+          this.answer = response.data.answer
+        })
+        .catch(error => {
+          this.answer = "Error! Could not reach the API. " + error
+        })
+    }
   }
-});
+})
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style scoped></style>
